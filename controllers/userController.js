@@ -1,5 +1,5 @@
 const { ObjectId } = require("mongoose").Types;
-const { User, User } = require("../models");
+const { User, Thought } = require("../models");
 
 module.exports = {
   // Get all users
@@ -48,71 +48,35 @@ module.exports = {
   // Delete a user and remove them from the user
   async deleteUser(req, res) {
     try {
-      const user = await User.findOneAndRemove({ _id: req.params.userId });
+      const user = await User.findOneAndDelete({ _id: req.params.userId });
 
       if (!user) {
         return res.status(404).json({ message: "No such user exists" });
       }
-
-      const user = await User.findOneAndUpdate(
-        { users: req.params.userId },
-        { $pull: { users: req.params.userId } },
-        { new: true }
-      );
-
-      if (!user) {
-        return res.status(404).json({
-          message: "User deleted, but no users found",
-        });
-      }
-
-      res.json({ message: "User successfully deleted" });
+       res.json({ message: "User successfully deleted!" });
     } catch (err) {
       console.log(err);
       res.status(500).json(err);
     }
   },
-
-  // Add an reaction to a user
-  async addReaction(req, res) {
-    console.log("You are adding a reaction");
-    console.log(req.body);
-
+  // updateUser Controller
+  async updateUser(req, res) {
     try {
       const user = await User.findOneAndUpdate(
         { _id: req.params.userId },
-        { $addToSet: { reactions: req.body } },
-        { runValidators: true, new: true }
+        { $set: req.body },
+        { new: true, runValidators: true }
       );
 
       if (!user) {
-        return res
-          .status(404)
-          .json({ message: "No user found with that ID :(" });
+        return res.status(404).json({
+          message: "Didn't work",
+        });
       }
 
-      res.json(user);
+      res.json({ message: "User successfully updated" });
     } catch (err) {
-      res.status(500).json(err);
-    }
-  },
-  // Remove reaction from a user
-  async removeReaction(req, res) {
-    try {
-      const user = await User.findOneAndUpdate(
-        { _id: req.params.userId },
-        { $pull: { reaction: { reactionId: req.params.reactionId } } },
-        { runValidators: true, new: true }
-      );
-
-      if (!user) {
-        return res
-          .status(404)
-          .json({ message: "No user found with that ID :(" });
-      }
-
-      res.json(user);
-    } catch (err) {
+      console.log(err);
       res.status(500).json(err);
     }
   },

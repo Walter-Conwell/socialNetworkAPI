@@ -1,20 +1,20 @@
-const { User, User } = require("../models");
+const { User, Thought } = require("../models");
 
 module.exports = {
   // Get all users
-  async getUsers(req, res) {
+  async getThoughts(req, res) {
     try {
-      const users = await User.find();
+      const users = await Thought.find();
       res.json(users);
     } catch (err) {
       res.status(500).json(err);
     }
   },
   // Get a user
-  async getSingleUser(req, res) {
+  async getSingleThought(req, res) {
     try {
-      const user = await User.findOne({
-        _id: req.params.userId,
+      const user = await Thought.findOne({
+        _id: req.params.thoughtId,
       }).select("-__v");
 
       if (!user) {
@@ -27,9 +27,9 @@ module.exports = {
     }
   },
   // Create a user
-  async createUser(req, res) {
+  async createThought(req, res) {
     try {
-      const user = await User.create(req.body);
+      const user = await Thought.create(req.body);
       res.json(user);
     } catch (err) {
       console.log(err);
@@ -37,10 +37,10 @@ module.exports = {
     }
   },
   // Delete a user
-  async deleteUser(req, res) {
+  async deleteThought(req, res) {
     try {
-      const user = await User.findOneAndDelete({
-        _id: req.params.userId,
+      const user = await Thought.findOneAndDelete({
+        _id: req.params.thoughtId,
       });
 
       if (!user) {
@@ -53,16 +53,59 @@ module.exports = {
     }
   },
   // Update a user
-  async updateUser(req, res) {
+  async updateThought(req, res) {
     try {
-      const user = await User.findOneAndUpdate(
-        { _id: req.params.userId },
+      const user = await Thought.findOneAndUpdate(
+        { _id: req.params.thoughtId },
         { $set: req.body },
         { runValidators: true, new: true }
       );
 
       if (!user) {
         res.status(404).json({ message: "No user with this id!" });
+      }
+
+      res.json(user);
+    } catch (err) {
+      res.status(500).json(err);
+    }
+  },
+  // Add an reaction to a user
+  async addReaction(req, res) {
+    console.log("You are adding a reaction");
+    console.log(req.body);
+
+    try {
+      const user = await User.findOneAndUpdate(
+        { _id: req.params.userId },
+        { $addToSet: { reactions: req.body } },
+        { runValidators: true, new: true }
+      );
+
+      if (!user) {
+        return res
+          .status(404)
+          .json({ message: "No user found with that ID :(" });
+      }
+
+      res.json(user);
+    } catch (err) {
+      res.status(500).json(err);
+    }
+  },
+  // Remove reaction from a user
+  async removeReaction(req, res) {
+    try {
+      const user = await User.findOneAndUpdate(
+        { _id: req.params.userId },
+        { $pull: { reaction: { reactionId: req.params.reactionId } } },
+        { runValidators: true, new: true }
+      );
+
+      if (!user) {
+        return res
+          .status(404)
+          .json({ message: "No user found with that ID :(" });
       }
 
       res.json(user);

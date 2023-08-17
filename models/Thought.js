@@ -2,13 +2,13 @@ const { Schema, model } = require("mongoose");
 const reactionSchema = require("./Reaction");
 
 // Schema to create a user model
-const userSchema = new Schema(
+const thoughtSchema = new Schema(
   {
-    userText: {
+    thoughtText: {
       type: String,
       required: true,
     },
-    userName: {
+    thoughtName: {
       type: String,
       required: true,
     },
@@ -27,6 +27,6 @@ const userSchema = new Schema(
   }
 );
 
-const User = model("user", userSchema);
+const Thought = model("thought", thoughtSchema);
 
-module.exports = User;
+module.exports = Thought;
